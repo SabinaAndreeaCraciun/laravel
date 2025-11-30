@@ -71,4 +71,35 @@ class CourseController extends Controller
         $course->delete();
         return redirect()->route('courses.index')->with('success', 'Curso eliminado con éxito');
     }
+
+    /**
+     * Export courses as CSV.
+     */
+    public function export()
+    {
+        $courses = Course::with('students')->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="courses.csv"',
+        ];
+
+        $callback = function () use ($courses) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['id', 'name', 'description', 'students_count', 'students']);
+            foreach ($courses as $c) {
+                $studentsNames = $c->students->pluck('first_name')->implode(', ');
+                fputcsv($handle, [
+                    $c->id,
+                    $c->name,
+                    $c->description,
+                    $c->students->count(),
+                    $studentsNames,
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

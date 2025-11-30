@@ -1,8 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Lista de Estudiantes</h1>
-    <a href="{{ route('students.create') }}">Crear Estudiante</a>
+    <div class="d-flex justify-content-between mb-3">
+        <h1>Lista de Estudiantes</h1>
+        <div>
+            <a href="{{ route('students.create') }}" class="btn btn-primary">Crear Estudiante</a>
+            <a href="{{ route('students.export') }}" class="btn btn-outline-secondary">Exportar CSV</a>
+        </div>
+    </div>
 
     @if(session('success'))
         <div style="color: green; margin-top: 10px;">

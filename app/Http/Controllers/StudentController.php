@@ -9,6 +9,35 @@ use Illuminate\Http\Request;
 class StudentController extends Controller
 {
     /**
+     * Export students as CSV.
+     */
+    public function export()
+    {
+        $students = Student::with('course')->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="students.csv"',
+        ];
+
+        $callback = function () use ($students) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['id', 'first_name', 'last_name', 'email', 'course']);
+            foreach ($students as $s) {
+                fputcsv($handle, [
+                    $s->id,
+                    $s->first_name,
+                    $s->last_name,
+                    $s->email,
+                    $s->course?->name ?? '',
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+    /**
      * Display a listing of the students.
      */
     public function index()
