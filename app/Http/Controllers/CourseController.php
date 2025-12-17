@@ -102,4 +102,44 @@ class CourseController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    // API Methods
+    public function apiIndex()
+    {
+        $courses = Course::with('students')->get();
+        return response()->json($courses);
+    }
+
+    public function apiStore(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:courses,name',
+            'description' => 'nullable|string',
+        ]);
+
+        $course = Course::create($request->all());
+        return response()->json($course->load('students'), 201);
+    }
+
+    public function apiShow(Course $course)
+    {
+        return response()->json($course->load('students'));
+    }
+
+    public function apiUpdate(Request $request, Course $course)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:courses,name,' . $course->id,
+            'description' => 'nullable|string',
+        ]);
+
+        $course->update($request->all());
+        return response()->json($course->load('students'));
+    }
+
+    public function apiDestroy(Course $course)
+    {
+        $course->delete();
+        return response()->json(['message' => 'Course deleted successfully']);
+    }
 }

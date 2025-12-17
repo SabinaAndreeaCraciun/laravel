@@ -106,4 +106,48 @@ class StudentController extends Controller
         $student->delete();
         return redirect()->route('students.index')->with('success', 'Estudiante eliminado con éxito');
     }
+
+    // API Methods
+    public function apiIndex()
+    {
+        $students = Student::with('course')->get();
+        return response()->json($students);
+    }
+
+    public function apiStore(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'email'      => 'required|email|unique:students,email',
+            'course_id'  => 'nullable|exists:courses,id',
+        ]);
+
+        $student = Student::create($request->all());
+        return response()->json($student->load('course'), 201);
+    }
+
+    public function apiShow(Student $student)
+    {
+        return response()->json($student->load('course'));
+    }
+
+    public function apiUpdate(Request $request, Student $student)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'email'      => 'required|email|unique:students,email,' . $student->id,
+            'course_id'  => 'nullable|exists:courses,id',
+        ]);
+
+        $student->update($request->all());
+        return response()->json($student->load('course'));
+    }
+
+    public function apiDestroy(Student $student)
+    {
+        $student->delete();
+        return response()->json(['message' => 'Student deleted successfully']);
+    }
 }
