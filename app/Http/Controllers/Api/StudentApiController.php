@@ -1,23 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\Course;
 use Illuminate\Http\Request;
 
-class StudentController extends Controller
+class StudentApiController extends Controller
 {
     public function index()
     {
-        $students = Student::with('course')->latest()->paginate(5);
-        return view('students.index', compact('students'));
-    }
-
-    public function create()
-    {
-        $courses = Course::all();
-        return view('students.create', compact('courses'));
+        $students = Student::with('course')->latest()->paginate(10);
+        return response()->json($students);
     }
 
     public function store(Request $request)
@@ -29,19 +24,13 @@ class StudentController extends Controller
             'course_id' => 'nullable|exists:courses,id',
         ]);
 
-        Student::create($request->all());
-        return redirect()->route('students.index')->with('success', 'Student created successfully.');
+        $student = Student::create($request->all());
+        return response()->json($student->load('course'), 201);
     }
 
     public function show(Student $student)
     {
-        return view('students.show', compact('student'));
-    }
-
-    public function edit(Student $student)
-    {
-        $courses = Course::all();
-        return view('students.edit', compact('student', 'courses'));
+        return response()->json($student->load('course'));
     }
 
     public function update(Request $request, Student $student)
@@ -54,13 +43,13 @@ class StudentController extends Controller
         ]);
 
         $student->update($request->all());
-        return redirect()->route('students.index')->with('success', 'Student updated successfully.');
+        return response()->json($student->load('course'));
     }
 
     public function destroy(Student $student)
     {
         $student->delete();
-        return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
+        return response()->json(['message' => 'Student deleted successfully']);
     }
 
     public function export()

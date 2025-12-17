@@ -4,6 +4,7 @@
     <div class="d-flex justify-content-between mb-3">
         <h1>Lista de Estudiantes</h1>
         <div>
+            <a href="{{ route('courses.index') }}" class="btn btn-success">Ver Cursos</a>
             <a href="{{ route('students.create') }}" class="btn btn-primary">Crear Estudiante</a>
             <a href="{{ route('students.export') }}" class="btn btn-outline-secondary">Exportar CSV</a>
         </div>
