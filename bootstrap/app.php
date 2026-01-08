@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo('/login');
+        // Removed redirect for API compatibility
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
